@@ -1,0 +1,43 @@
+/*Cell death quantification
+ * authors: Jose Salguero-Linares, Saul Lema Asqui, Marta Salas-Gómez, Andrea Froilán-Soáres and Núria Sánchez-Coll. 
+ */
+
+//global variables
+var dir; //directory of image
+//
+
+macro "Process Image for cell death" {
+	dir = getDirectory("image");
+	img = getTitle();
+	//dir = getDirectory(ori);
+	name = getTitle();
+	run("Duplicate...", "title=["+name+" processed image"+"]"); 
+	waitForUser("Crop image if needed");
+	run("Enhance Contrast...", "saturated=3 ");
+	run("8-bit");
+	run("Tile")
+	run("Threshold...");
+	waitForUser("adjust threshold slider, then hit OK");
+	run ("Close");
+	run("Convert to Mask");
+
+}
+macro "Cell death area quantification" {
+	run("Select None");
+	/*
+	 * Area selection and quantification
+	 */
+	setTool("freehand");
+	Dialog.createNonBlocking("Define area");
+	Dialog.addMessage("Select the area for cell death quantification.");
+	Dialog.addCheckbox("Area selection done", 0);
+	Dialog.show();
+	done = Dialog.getCheckbox();
+	while (!done) {
+		Dialog.show();
+		areaname = Dialog.getString();
+		done = Dialog.getCheckbox();
+}
+run("Set Measurements...", "area area_fraction display redirect=None decimal=2");
+run("Measure");
+}
